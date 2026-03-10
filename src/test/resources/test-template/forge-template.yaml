@@ -1,0 +1,12 @@
+forge_version: "0.1"
+template:
+  id: test-template
+  name: "Test Template"
+  version: "1.0.0"
+  description: "A test template"
+variables:
+  - name: projectName
+    description: "Project name"
+    type: string
+    required: true
+    default: "my-project"
