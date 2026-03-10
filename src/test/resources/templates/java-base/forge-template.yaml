@@ -1,0 +1,24 @@
+forge_version: "0.1"
+template:
+  id: java-base
+  name: "Java 21 Base"
+  version: "1.0.0"
+  description: "Minimal Java 21 Maven project"
+  tags: [java, maven]
+variables:
+  - name: groupId
+    description: "Maven groupId"
+    type: string
+    required: true
+    default: "com.example"
+    prompt: "Maven groupId"
+  - name: artifactId
+    description: "Project name"
+    type: string
+    required: true
+    prompt: "Project name"
+  - name: javaVersion
+    description: "Java version"
+    type: string
+    default: "21"
+    prompt: "Java version"
