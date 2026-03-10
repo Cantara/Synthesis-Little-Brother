@@ -1,6 +1,7 @@
 package no.cantara.forge.template;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Maps the top-level structure of a {@code forge-template.yaml} manifest.
@@ -37,6 +38,17 @@ public class TemplateManifest {
     private String extend;
     private List<TemplateVariable> variables;
     private List<TemplateFile> files;
+
+    /**
+     * Optional hooks block. Structure:
+     * <pre>{@code
+     * hooks:
+     *   post_generate:
+     *     - command: "git init"
+     *       description: "Initialize git repository"
+     * }</pre>
+     */
+    private Map<String, List<Map<String, String>>> hooks;
 
     public TemplateManifest() {
     }
@@ -84,6 +96,14 @@ public class TemplateManifest {
 
     public void setFiles(List<TemplateFile> files) {
         this.files = files;
+    }
+
+    public Map<String, List<Map<String, String>>> getHooks() {
+        return hooks;
+    }
+
+    public void setHooks(Map<String, List<Map<String, String>>> hooks) {
+        this.hooks = hooks;
     }
 
     /**

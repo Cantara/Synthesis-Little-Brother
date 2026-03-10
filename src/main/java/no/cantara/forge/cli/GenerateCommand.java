@@ -1,16 +1,20 @@
 package no.cantara.forge.cli;
 
+import no.cantara.forge.config.ForgeConfig;
+import no.cantara.forge.config.ForgeConfigLoader;
 import no.cantara.forge.engine.VariableCollector;
+import no.cantara.forge.generate.HookRunner;
 import no.cantara.forge.generate.ProjectGenerator;
+import no.cantara.forge.registry.RegistryManager;
 import no.cantara.forge.template.TemplateManifest;
 import no.cantara.forge.template.TemplateManifestLoader;
+import no.cantara.forge.util.AnsiOutput;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -23,7 +27,7 @@ import java.util.concurrent.Callable;
  *
  * <h3>Usage:</h3>
  * <pre>{@code
- * forge generate cantara/java-service
+ * forge generate java-base
  * forge generate cantara/java-service --output-dir ./my-project
  * forge generate cantara/java-service --var groupId=no.cantara --var artifactId=my-service
  * forge generate cantara/java-service --vars-file vars.yaml --dry-run
@@ -31,9 +35,10 @@ import java.util.concurrent.Callable;
  *
  * <h3>Template resolution order:</h3>
  * <ol>
- *   <li>If the template ID is an existing filesystem path, use it directly.</li>
- *   <li>{@code ~/.forge/templates/<templateId>/} — user-local templates.</li>
- *   <li>If neither exists, print an error and exit with code 1.</li>
+ *   <li>Direct filesystem path</li>
+ *   <li>{@code ~/.forge/templates/<id>/} — user-local templates</li>
+ *   <li>Configured registries (first match wins)</li>
+ *   <li>Built-in classpath templates bundled with the JAR</li>
  * </ol>
  */
 @Command(
@@ -72,10 +77,22 @@ public class GenerateCommand implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            // 1. Resolve template directory
-            Path templateDir = resolveTemplateDir(templateId);
+            // 1. Resolve template directory via RegistryManager
+            AnsiOutput.printHeader("Generating project from template: " + templateId);
+            System.out.println();
+
+            ForgeConfig config = ForgeConfigLoader.load();
+            RegistryManager manager = new RegistryManager(
+                    config,
+                    ForgeConfigLoader.getRegistriesDir(),
+                    ForgeConfigLoader.getTemplatesDir()
+            );
+
+            Path templateDir = manager.resolve(templateId);
             if (templateDir == null) {
-                System.err.println("Template not found: " + templateId);
+                AnsiOutput.printError("Template not found: " + templateId);
+                System.err.println("  Try: forge list  — to see available templates");
+                System.err.println("  Try: forge registry add <url>  — to add a template registry");
                 return 1;
             }
 
@@ -108,52 +125,42 @@ public class GenerateCommand implements Callable<Integer> {
             ProjectGenerator.GenerateResult result = generator.generate(
                     templateDir, resolvedOutput, resolvedVars, dryRun);
 
-            // 7. Print summary
+            // 7. Run post-generate hooks (only on real generation, not dry-run)
+            if (!dryRun) {
+                HookRunner.runAll(manifest, result.outputDir());
+            }
+
+            // 8. Print summary
+            System.out.println();
             if (dryRun) {
-                System.out.println("Dry-run complete. Would create "
+                AnsiOutput.printSuccess("Dry-run complete. Would create "
                         + result.filesCreated() + " file(s) in: " + result.outputDir());
             } else {
-                System.out.println("Generated " + result.filesCreated()
-                        + " file(s) in: " + result.outputDir());
+                AnsiOutput.printSuccess("Project created: " + result.outputDir().toAbsolutePath());
+                System.out.println();
+                System.out.println(AnsiOutput.bold("Next steps:"));
+                System.out.println("  cd " + result.outputDir().toAbsolutePath());
+                System.out.println("  mvn test");
             }
+
             if (!result.skippedFiles().isEmpty()) {
-                System.out.println("Skipped " + result.skippedFiles().size() + " file(s):");
-                result.skippedFiles().forEach(f -> System.out.println("  - " + f));
+                System.out.println();
+                AnsiOutput.printDim("Skipped " + result.skippedFiles().size() + " file(s):");
+                result.skippedFiles().forEach(f -> AnsiOutput.printDim("  - " + f));
             }
+
             return 0;
 
         } catch (IllegalStateException | IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
+            AnsiOutput.printError(e.getMessage());
             return 1;
         } catch (IOException e) {
-            System.err.println("I/O error: " + e.getMessage());
+            AnsiOutput.printError("I/O error: " + e.getMessage());
+            return 1;
+        } catch (Exception e) {
+            AnsiOutput.printError("Unexpected error: " + e.getMessage());
             return 1;
         }
-    }
-
-    /**
-     * Resolves the template directory from a template ID or path.
-     *
-     * @param id the template ID (e.g. "java-base" or "cantara/java-service") or a filesystem path
-     * @return the resolved directory, or {@code null} if not found
-     */
-    private Path resolveTemplateDir(String id) {
-        // 1. Check if it is a direct path to an existing directory
-        Path direct = Path.of(id);
-        if (Files.isDirectory(direct)) {
-            return direct;
-        }
-
-        // 2. Check ~/.forge/templates/<id>/
-        Path userLocal = Path.of(System.getProperty("user.home"))
-                .resolve(".forge")
-                .resolve("templates")
-                .resolve(id);
-        if (Files.isDirectory(userLocal)) {
-            return userLocal;
-        }
-
-        return null;
     }
 
     /**

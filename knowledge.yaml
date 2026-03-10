@@ -1,0 +1,116 @@
+name: Synthesis-Little-Brother (Forge)
+description: KCP-native project scaffolding CLI — generate company-standard projects from versioned template manifests
+version: 0.1.0-SNAPSHOT
+units:
+  - id: forge-cli
+    name: Forge CLI Entry Point
+    path: src/main/java/no/cantara/forge/ForgeApp.java
+    type: code
+    keywords: [forge, cli, picocli, scaffolding, entry-point]
+
+  - id: template-engine
+    name: Template Engine
+    path: src/main/java/no/cantara/forge/engine/TemplateEngine.java
+    type: code
+    keywords: [template, substitution, variables, filters, pascal-case, kebab-case, replace]
+
+  - id: variable-collector
+    name: Variable Collector
+    path: src/main/java/no/cantara/forge/engine/VariableCollector.java
+    type: code
+    keywords: [variables, interactive, prompt, cli, vars-file, defaults]
+
+  - id: project-generator
+    name: Project Generator
+    path: src/main/java/no/cantara/forge/generate/ProjectGenerator.java
+    type: code
+    keywords: [generate, scaffold, pipeline, dry-run, file-discovery]
+
+  - id: file-renderer
+    name: File Renderer
+    path: src/main/java/no/cantara/forge/generate/FileRenderer.java
+    type: code
+    keywords: [render, ftl, copy, condition, target-path]
+
+  - id: hook-runner
+    name: Hook Runner
+    path: src/main/java/no/cantara/forge/generate/HookRunner.java
+    type: code
+    keywords: [hooks, post-generate, shell, git-init]
+
+  - id: registry-manager
+    name: Registry Manager
+    path: src/main/java/no/cantara/forge/registry/RegistryManager.java
+    type: code
+    keywords: [registry, templates, git, discovery, builtin, resolution]
+
+  - id: registry-entry
+    name: Registry Entry
+    path: src/main/java/no/cantara/forge/registry/RegistryEntry.java
+    type: code
+    keywords: [registry, git-url, local-path, config]
+
+  - id: git-registry-resolver
+    name: Git Registry Resolver
+    path: src/main/java/no/cantara/forge/registry/GitRegistryResolver.java
+    type: code
+    keywords: [jgit, clone, pull, cache, freshness]
+
+  - id: local-registry-resolver
+    name: Local Registry Resolver
+    path: src/main/java/no/cantara/forge/registry/LocalRegistryResolver.java
+    type: code
+    keywords: [local, filesystem, template-discovery]
+
+  - id: forge-config
+    name: Forge Configuration
+    path: src/main/java/no/cantara/forge/config/ForgeConfig.java
+    type: code
+    keywords: [config, yaml, registries, ttl]
+
+  - id: forge-config-loader
+    name: Forge Config Loader
+    path: src/main/java/no/cantara/forge/config/ForgeConfigLoader.java
+    type: code
+    keywords: [config, load, save, home-directory]
+
+  - id: template-manifest
+    name: Template Manifest
+    path: src/main/java/no/cantara/forge/template/TemplateManifest.java
+    type: code
+    keywords: [manifest, forge-template-yaml, pojo, snakeyaml]
+
+  - id: ansi-output
+    name: ANSI Output Utilities
+    path: src/main/java/no/cantara/forge/util/AnsiOutput.java
+    type: code
+    keywords: [ansi, colors, terminal, output, success, error, warning]
+
+  - id: case-converter
+    name: Case Converter
+    path: src/main/java/no/cantara/forge/util/CaseConverter.java
+    type: code
+    keywords: [pascal-case, camel-case, kebab-case, upper-case, lower-case]
+
+  - id: builtin-java-base
+    name: Built-in Java 21 Base Template
+    path: src/main/resources/builtin-templates/java-base/forge-template.yaml
+    type: config
+    keywords: [java, maven, junit5, template, builtin]
+
+relationships:
+  - from: forge-cli
+    to: [project-generator, registry-manager, forge-config-loader]
+    type: uses
+  - from: project-generator
+    to: [file-renderer, hook-runner, template-manifest]
+    type: uses
+  - from: file-renderer
+    to: [template-engine]
+    type: uses
+  - from: registry-manager
+    to: [forge-config, git-registry-resolver, local-registry-resolver, template-manifest]
+    type: uses
+  - from: forge-config-loader
+    to: [forge-config, registry-entry]
+    type: uses

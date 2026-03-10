@@ -1,0 +1,47 @@
+forge_version: "0.1"
+template:
+  id: java-base
+  name: "Java 21 Base Project"
+  version: "1.0.0"
+  description: "Minimal Java 21 Maven project with testing setup"
+  tags: [java, maven, base]
+  author: "Cantara"
+  license: "Apache-2.0"
+variables:
+  - name: groupId
+    description: "Maven groupId (e.g. com.example)"
+    type: string
+    required: true
+    default: "com.example"
+    prompt: "Maven groupId"
+    validation: "^[a-z][a-z0-9.]*$"
+  - name: artifactId
+    description: "Project name / artifactId"
+    type: string
+    required: true
+    prompt: "Project name (artifactId)"
+  - name: javaVersion
+    description: "Java version"
+    type: string
+    default: "21"
+    prompt: "Java version"
+  - name: description
+    description: "Project description"
+    type: string
+    default: "A Java project"
+    prompt: "Project description"
+files:
+  - source: "pom.xml.ftl"
+    target: "pom.xml"
+  - source: "README.md.ftl"
+    target: "README.md"
+  - source: "gitignore.ftl"
+    target: ".gitignore"
+  - source: "src/main/java/App.java.ftl"
+    target: "src/main/java/{{groupId | replace('.','/')}}/{{artifactId | pascal-case}}App.java"
+hooks:
+  post_generate:
+    - command: "git init"
+      description: "Initialize git repository"
+    - command: "git add ."
+      description: "Stage all generated files"
