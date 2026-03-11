@@ -1,0 +1,51 @@
+forge_version: "0.1"
+template:
+  id: react-base
+  name: "React + Vite Base Project"
+  version: "1.0.0"
+  description: "Minimal React 18 project with Vite and TypeScript"
+  tags: [react, typescript, frontend, base]
+  author: "Cantara"
+  license: "Apache-2.0"
+variables:
+  - name: projectName
+    description: "Project name (used as package name and directory)"
+    type: string
+    required: true
+    prompt: "Project name"
+    validation: "^[a-z][a-z0-9-]*$"
+  - name: description
+    description: "Project description"
+    type: string
+    default: "A React project"
+    prompt: "Project description"
+  - name: nodeVersion
+    description: "Node.js version"
+    type: string
+    default: "20"
+    prompt: "Node.js version"
+files:
+  - source: "package.json.ftl"
+    target: "package.json"
+  - source: "README.md.ftl"
+    target: "README.md"
+  - source: "gitignore.ftl"
+    target: ".gitignore"
+  - source: "index.html.ftl"
+    target: "index.html"
+  - source: "vite.config.ts.ftl"
+    target: "vite.config.ts"
+  - source: "tsconfig.json.ftl"
+    target: "tsconfig.json"
+  - source: "src/main.tsx.ftl"
+    target: "src/main.tsx"
+  - source: "src/App.tsx.ftl"
+    target: "src/App.tsx"
+  - source: "src/App.css"
+    target: "src/App.css"
+hooks:
+  post_generate:
+    - command: "git init"
+      description: "Initialize git repository"
+    - command: "git add ."
+      description: "Stage all generated files"

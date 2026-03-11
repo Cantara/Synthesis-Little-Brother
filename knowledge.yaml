@@ -98,6 +98,18 @@ units:
     type: config
     keywords: [java, maven, junit5, template, builtin]
 
+  - id: builtin-react-base
+    name: Built-in React + Vite Base Template
+    path: src/main/resources/builtin-templates/react-base/forge-template.yaml
+    type: config
+    keywords: [react, vite, typescript, frontend, template, builtin]
+
+  - id: builtin-angular-base
+    name: Built-in Angular 17 Base Template
+    path: src/main/resources/builtin-templates/angular-base/forge-template.yaml
+    type: config
+    keywords: [angular, typescript, standalone-components, frontend, template, builtin]
+
 relationships:
   - from: forge-cli
     to: [project-generator, registry-manager, forge-config-loader]

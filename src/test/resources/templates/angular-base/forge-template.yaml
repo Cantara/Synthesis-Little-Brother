@@ -1,0 +1,23 @@
+forge_version: "0.1"
+template:
+  id: angular-base
+  name: "Angular Base"
+  version: "1.0.0"
+  description: "Minimal Angular project"
+  tags: [angular, typescript, frontend]
+variables:
+  - name: projectName
+    description: "Project name"
+    type: string
+    required: true
+    prompt: "Project name"
+  - name: description
+    description: "Project description"
+    type: string
+    default: "An Angular project"
+    prompt: "Project description"
+  - name: nodeVersion
+    description: "Node.js version"
+    type: string
+    default: "20"
+    prompt: "Node.js version"

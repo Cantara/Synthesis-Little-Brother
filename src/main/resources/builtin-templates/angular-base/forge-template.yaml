@@ -1,0 +1,53 @@
+forge_version: "0.1"
+template:
+  id: angular-base
+  name: "Angular Base Project"
+  version: "1.0.0"
+  description: "Minimal Angular 17 project with standalone components"
+  tags: [angular, typescript, frontend, base]
+  author: "Cantara"
+  license: "Apache-2.0"
+variables:
+  - name: projectName
+    description: "Project name (used as package name and directory)"
+    type: string
+    required: true
+    prompt: "Project name"
+    validation: "^[a-z][a-z0-9-]*$"
+  - name: description
+    description: "Project description"
+    type: string
+    default: "An Angular project"
+    prompt: "Project description"
+  - name: nodeVersion
+    description: "Node.js version"
+    type: string
+    default: "20"
+    prompt: "Node.js version"
+files:
+  - source: "package.json.ftl"
+    target: "package.json"
+  - source: "README.md.ftl"
+    target: "README.md"
+  - source: "gitignore.ftl"
+    target: ".gitignore"
+  - source: "angular.json.ftl"
+    target: "angular.json"
+  - source: "tsconfig.json.ftl"
+    target: "tsconfig.json"
+  - source: "tsconfig.app.json.ftl"
+    target: "tsconfig.app.json"
+  - source: "src/main.ts.ftl"
+    target: "src/main.ts"
+  - source: "src/index.html.ftl"
+    target: "src/index.html"
+  - source: "src/styles.css"
+    target: "src/styles.css"
+  - source: "src/app/app.component.ts.ftl"
+    target: "src/app/app.component.ts"
+hooks:
+  post_generate:
+    - command: "git init"
+      description: "Initialize git repository"
+    - command: "git add ."
+      description: "Stage all generated files"

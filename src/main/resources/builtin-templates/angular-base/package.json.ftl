@@ -1,0 +1,28 @@
+{
+  "name": "{{projectName | kebab-case}}",
+  "version": "0.1.0",
+  "description": "{{description}}",
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/compiler": "^17.3.12",
+    "@angular/core": "^17.3.12",
+    "@angular/platform-browser": "^17.3.12",
+    "rxjs": "~7.8.1",
+    "tslib": "^2.6.3",
+    "zone.js": "~0.14.10"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^17.3.11",
+    "@angular/cli": "^17.3.11",
+    "@angular/compiler-cli": "^17.3.12",
+    "typescript": "~5.4.5"
+  },
+  "engines": {
+    "node": ">={{nodeVersion}}"
+  }
+}

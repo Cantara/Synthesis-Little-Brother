@@ -160,6 +160,122 @@ class ProjectGeneratorTest {
         assertEquals("Dockerfile", result.skippedFiles().get(0));
     }
 
+    // -------------------------------------------------------------------------
+    // react-base template
+    // -------------------------------------------------------------------------
+
+    private Path reactBaseTemplate() throws URISyntaxException {
+        URL url = getClass().getClassLoader().getResource("templates/react-base");
+        assertNotNull(url, "react-base template not found on classpath");
+        return Path.of(url.toURI());
+    }
+
+    @Test
+    void generate_reactBase_createsFilesWithSubstitution(@TempDir Path tempDir) throws Exception {
+        Path templateDir = reactBaseTemplate();
+        Path outputDir = tempDir.resolve("my-react-app");
+
+        Map<String, String> vars = Map.of(
+                "projectName", "my-react-app",
+                "description", "A test React app",
+                "nodeVersion", "20"
+        );
+
+        ProjectGenerator generator = new ProjectGenerator();
+        ProjectGenerator.GenerateResult result = generator.generate(templateDir, outputDir, vars, false);
+
+        assertTrue(Files.isDirectory(outputDir), "Output directory should exist");
+
+        // package.json exists and has correct content
+        Path packageJson = outputDir.resolve("package.json");
+        assertTrue(Files.exists(packageJson), "package.json should exist");
+        String packageContent = Files.readString(packageJson);
+        assertTrue(packageContent.contains("\"my-react-app\""), "projectName substituted as kebab-case");
+        assertTrue(packageContent.contains("A test React app"), "description substituted");
+        assertTrue(packageContent.contains(">=20"), "nodeVersion substituted");
+
+        // README.md exists and has pascal-case projectName
+        Path readme = outputDir.resolve("README.md");
+        assertTrue(Files.exists(readme), "README.md should exist");
+        String readmeContent = Files.readString(readme);
+        assertTrue(readmeContent.contains("MyReactApp"), "README should contain pascal-case project name");
+
+        // .gitignore exists
+        assertTrue(Files.exists(outputDir.resolve(".gitignore")), ".gitignore should exist");
+
+        assertEquals(3, result.filesCreated(), "Should create 3 files");
+        assertTrue(result.skippedFiles().isEmpty(), "No files should be skipped");
+    }
+
+    @Test
+    void generate_reactBase_dryRun_doesNotCreateFiles(@TempDir Path tempDir) throws Exception {
+        Path templateDir = reactBaseTemplate();
+        Path outputDir = tempDir.resolve("dry-run-react");
+
+        Map<String, String> vars = Map.of(
+                "projectName", "dry-test",
+                "description", "Dry run test",
+                "nodeVersion", "20"
+        );
+
+        ProjectGenerator generator = new ProjectGenerator();
+        ProjectGenerator.GenerateResult result = generator.generate(templateDir, outputDir, vars, true);
+
+        assertFalse(Files.exists(outputDir), "Output directory should NOT be created during dry-run");
+        assertTrue(result.filesCreated() > 0, "Dry-run should report file count");
+    }
+
+    // -------------------------------------------------------------------------
+    // angular-base template
+    // -------------------------------------------------------------------------
+
+    private Path angularBaseTemplate() throws URISyntaxException {
+        URL url = getClass().getClassLoader().getResource("templates/angular-base");
+        assertNotNull(url, "angular-base template not found on classpath");
+        return Path.of(url.toURI());
+    }
+
+    @Test
+    void generate_angularBase_createsFilesWithSubstitution(@TempDir Path tempDir) throws Exception {
+        Path templateDir = angularBaseTemplate();
+        Path outputDir = tempDir.resolve("my-angular-app");
+
+        Map<String, String> vars = Map.of(
+                "projectName", "my-angular-app",
+                "description", "A test Angular app",
+                "nodeVersion", "20"
+        );
+
+        ProjectGenerator generator = new ProjectGenerator();
+        ProjectGenerator.GenerateResult result = generator.generate(templateDir, outputDir, vars, false);
+
+        assertTrue(Files.isDirectory(outputDir), "Output directory should exist");
+
+        // package.json exists and has correct content
+        Path packageJson = outputDir.resolve("package.json");
+        assertTrue(Files.exists(packageJson), "package.json should exist");
+        String packageContent = Files.readString(packageJson);
+        assertTrue(packageContent.contains("\"my-angular-app\""), "projectName substituted as kebab-case");
+        assertTrue(packageContent.contains("A test Angular app"), "description substituted");
+        assertTrue(packageContent.contains(">=20"), "nodeVersion substituted");
+
+        // README.md exists and has pascal-case projectName
+        Path readme = outputDir.resolve("README.md");
+        assertTrue(Files.exists(readme), "README.md should exist");
+        String readmeContent = Files.readString(readme);
+        assertTrue(readmeContent.contains("MyAngularApp"), "README should contain pascal-case project name");
+
+        // .gitignore exists
+        assertTrue(Files.exists(outputDir.resolve(".gitignore")), ".gitignore should exist");
+
+        assertEquals(3, result.filesCreated(), "Should create 3 files");
+        assertTrue(result.skippedFiles().isEmpty(), "No files should be skipped");
+    }
+
+    // -------------------------------------------------------------------------
+    // File discovery
+    // -------------------------------------------------------------------------
+
     @Test
     void discoverFiles_excludesManifest(@TempDir Path tempDir) throws IOException {
         Path templateDir = tempDir.resolve("discover-test");
