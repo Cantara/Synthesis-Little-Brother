@@ -1,0 +1,135 @@
+name: cantara-forge
+version: 1.0.0
+description: >
+  Forge (repo: Synthesis-Little-Brother) is a KCP-native project scaffolding CLI.
+  Generates company-standard projects from versioned template manifests. Sibling to
+  Synthesis: Synthesis indexes what exists, Forge creates what is needed.
+
+  Trigger phrases: "forge, project scaffolding, forge template, forge generate,
+  synthesis little brother, project generator, template manifest, forge-template.yaml,
+  kcp scaffold, new project template, forge registry"
+
+context:
+  org: cantara
+  repo: /src/cantara/Synthesis-Little-Brother
+  package: no.cantara.forge
+
+related_skills:
+  - cantara-overview   # Forge is part of the Cantara tooling ecosystem
+  - cantara-kcp        # Forge is KCP-native (uses knowledge.yaml manifests)
+
+instructions: |
+  ## Overview
+
+  Forge is a KCP-native project scaffolding CLI. It generates new projects from versioned
+  template manifests, ensuring every new repo follows company standards (Maven structure,
+  CI config, knowledge.yaml, CLAUDE.md, etc.).
+
+  **Version:** 0.1.0-SNAPSHOT
+  **Repo:** /src/cantara/Synthesis-Little-Brother
+  **Relationship:** Sibling to Synthesis -- Synthesis indexes existing repos, Forge creates new ones.
+
+  ## Tech Stack
+  - Java 21
+  - Picocli 4.7.6 (CLI framework, same as Synthesis)
+  - SnakeYAML 2.2 (template manifest parsing)
+  - JGit 7.1.0 (git registry resolution)
+  - JUnit Jupiter 5.10.2
+  - Maven fat JAR -> `forge.jar`
+
+  ## Architecture
+  ```
+  no.cantara.forge
+    ForgeApp.java             CLI entry point (Picocli)
+    cli/                      One class per subcommand
+    template/                 TemplateManifest + TemplateVariable + TemplateFile POJOs
+    engine/                   TemplateEngine ({{var | filter}} substitution)
+    registry/                 RegistryManager + resolvers (git, local, builtin)
+    generate/                 ProjectGenerator (orchestrates generation pipeline)
+    util/                     CaseConverter, AnsiOutput
+  ```
+
+  ## Key Components
+
+  ### Template Engine (`engine/TemplateEngine.java`)
+  Processes `{{variableName}}` placeholders in template files. Supports filters:
+  - `upper-case`, `lower-case`
+  - `pascal-case`, `camel-case`, `kebab-case`
+  - `replace('from','to')`
+
+  Example: `{{projectName | pascal-case}}` -> `MyProject`
+
+  ### Template Manifest (`forge-template.yaml`)
+  Every template directory contains a `forge-template.yaml`:
+  ```yaml
+  forge_version: "0.1"
+  template:
+    id: my-template
+    name: "My Template"
+    version: "1.0.0"
+  variables:
+    - name: projectName
+      type: string
+      required: true
+      default: "my-project"
+  files:
+    - source: "pom.xml.ftl"
+      target: "pom.xml"
+  ```
+
+  ### Variable Collector (`engine/VariableCollector.java`)
+  Collects variable values for template rendering:
+  - Interactive prompts (CLI)
+  - Vars file (`--vars-file`)
+  - Defaults from manifest
+
+  ### Project Generator (`generate/ProjectGenerator.java`)
+  Orchestrates the generation pipeline:
+  1. Resolve template from registry
+  2. Collect variables (interactive or from file)
+  3. Render files (FileRenderer applies TemplateEngine to each `.ftl` file, copies others)
+  4. Run post-generate hooks (HookRunner: shell scripts, git init, etc.)
+  Supports `--dry-run` to preview without writing.
+
+  ### Registry System
+  Templates are discovered from registries:
+  - **Git registries** (`GitRegistryResolver`): clones/pulls remote git repos, caches locally
+  - **Local registries** (`LocalRegistryResolver`): filesystem paths
+  - **Built-in templates**: bundled in the JAR (`src/main/resources/builtin-templates/`)
+
+  Registry configuration in `~/.forge/config.yaml`:
+  ```yaml
+  registries:
+    - name: cantara
+      type: git
+      url: https://github.com/Cantara/forge-templates.git
+    - name: local
+      type: local
+      path: /path/to/templates
+  ```
+
+  ### Built-in Templates
+  - **java-base**: Java 21 + Maven + JUnit 5 project skeleton
+    (`src/main/resources/builtin-templates/java-base/forge-template.yaml`)
+
+  ## Build & Run
+  ```bash
+  cd /src/cantara/Synthesis-Little-Brother
+  mvn test                    # run tests
+  mvn package -q              # build forge.jar
+  java -jar target/forge.jar  # run CLI
+  ```
+
+  ## CLI Usage
+  ```bash
+  forge generate <template-id>            # generate from template
+  forge generate <template-id> --dry-run  # preview without writing
+  forge list                              # list available templates
+  ```
+
+  ## Key Design Decisions
+  - **KCP-native:** Generated projects include knowledge.yaml by default
+  - **Filter-based templating:** `{{var | filter}}` instead of full template language
+  - **Registry-first:** Templates are versioned and distributed via git registries
+  - **Picocli CLI:** Same CLI framework as Synthesis for consistency
+  - **Post-generate hooks:** Shell scripts run after generation (git init, mvn wrapper, etc.)
