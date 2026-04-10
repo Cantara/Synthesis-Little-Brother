@@ -1,0 +1,54 @@
+forge_version: "0.1"
+template:
+  id: company/angular-base
+  name: "Standard Angular 17+ Enterprise"
+  version: "1.0.0"
+  description: "Enterprise Angular template with Material Design, Standard Grids and Forms."
+  tags: [typescript, angular, frontend]
+  author: "Company Frontend Team"
+
+variables:
+  - name: projectName
+    description: "Project Name (kebab-case)"
+    type: string
+    required: true
+    default: "my-app"
+  - name: includeGrids
+    description: "Include standard company data grids?"
+    type: boolean
+    default: true
+
+files:
+  - source: "templates/package.json.ftl"
+    target: "package.json"
+  - source: "templates/angular.json.ftl"
+    target: "angular.json"
+  - source: "templates/tsconfig.json.ftl"
+    target: "tsconfig.json"
+  - source: "templates/tsconfig.app.json.ftl"
+    target: "tsconfig.app.json"
+  - source: "templates/gitignore.ftl"
+    target: ".gitignore"
+  - source: "templates/README.md.ftl"
+    target: "README.md"
+  - source: "templates/main.ts.ftl"
+    target: "src/main.ts"
+  - source: "templates/index.html.ftl"
+    target: "src/index.html"
+  - source: "templates/styles.css"
+    target: "src/styles.css"
+  - source: "templates/app.component.ts.ftl"
+    target: "src/app/app.component.ts"
+  - source: "templates/GridComponent.ts.ftl"
+    target: "src/app/shared/components/grid/company-grid.component.ts"
+    condition: "{{includeGrids}}"
+  - source: "templates/GridComponent.html.ftl"
+    target: "src/app/shared/components/grid/company-grid.component.html"
+    condition: "{{includeGrids}}"
+  - source: "templates/KNOWLEDGE.yaml.ftl"
+    target: "KNOWLEDGE.yaml"
+
+hooks:
+  post_generate:
+    - command: "git init"
+    - command: "git add ."

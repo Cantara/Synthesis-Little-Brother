@@ -1,0 +1,43 @@
+forge_version: "0.1"
+template:
+  id: company/spring-boot-api
+  name: "Standard Spring Boot 3 API"
+  version: "1.0.0"
+  description: "Standard API template with Spring Boot 3, Maven, and OpenAPI documentation."
+  tags: [java, spring-boot, backend]
+  author: "Company Architecture Team"
+
+variables:
+  - name: groupId
+    description: "Maven groupId"
+    type: string
+    required: true
+    default: "com.company.api"
+  - name: artifactId
+    description: "Maven artifactId"
+    type: string
+    required: true
+    default: "my-service"
+  - name: serviceName
+    description: "Human-readable service name"
+    type: string
+    required: true
+    default: "My Service"
+
+files:
+  - source: "templates/pom.xml.ftl"
+    target: "pom.xml"
+  - source: "templates/Application.java.ftl"
+    target: "src/main/java/{{groupId | replace('.','/')}}/{{artifactId | pascal-case}}Application.java"
+  - source: "templates/OpenApiConfig.java.ftl"
+    target: "src/main/java/{{groupId | replace('.','/')}}/config/OpenApiConfig.java"
+  - source: "templates/StandardController.java.ftl"
+    target: "src/main/java/{{groupId | replace('.','/')}}/controller/HealthController.java"
+  - source: "templates/README.md.ftl"
+    target: "README.md"
+  - source: "templates/KNOWLEDGE.yaml.ftl"
+    target: "KNOWLEDGE.yaml"
+
+hooks:
+  post_generate:
+    - command: "git init"

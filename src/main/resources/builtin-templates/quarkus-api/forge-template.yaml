@@ -1,0 +1,39 @@
+forge_version: "0.1"
+template:
+  id: company/quarkus-api
+  name: "Standard Quarkus 3 API"
+  version: "1.0.0"
+  description: "Standard API template with Quarkus 3, Maven, and OpenAPI documentation."
+  tags: [java, quarkus, backend]
+  author: "Company Architecture Team"
+
+variables:
+  - name: groupId
+    description: "Maven groupId"
+    type: string
+    required: true
+    default: "com.company.api"
+  - name: artifactId
+    description: "Maven artifactId"
+    type: string
+    required: true
+    default: "my-service"
+  - name: serviceName
+    description: "Human-readable service name"
+    type: string
+    required: true
+    default: "My Quarkus Service"
+
+files:
+  - source: "templates/pom.xml.ftl"
+    target: "pom.xml"
+  - source: "templates/GreetingResource.java.ftl"
+    target: "src/main/java/{{groupId | replace('.','/')}}/GreetingResource.java"
+  - source: "templates/README.md.ftl"
+    target: "README.md"
+  - source: "templates/KNOWLEDGE.yaml.ftl"
+    target: "KNOWLEDGE.yaml"
+
+hooks:
+  post_generate:
+    - command: "git init"

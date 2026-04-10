@@ -202,8 +202,8 @@ public class RegistryManager {
 
     private List<AvailableTemplate> listBuiltins() {
         List<AvailableTemplate> result = new ArrayList<>();
-        // We know the only built-in is java-base; enumerate them from the classpath
-        String[] builtinIds = {"java-base", "react-base", "angular-base"};
+        // Enumerate all built-ins from the classpath
+        String[] builtinIds = {"java-base", "react-base", "angular-base", "spring-boot-api", "angular-enterprise", "quarkus-api"};
         for (String id : builtinIds) {
             try {
                 Path dir = resolveBuiltin(id);
