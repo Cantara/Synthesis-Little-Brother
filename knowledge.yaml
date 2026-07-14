@@ -1,4 +1,4 @@
-kcp_version: "0.21"
+kcp_version: "0.26"
 updated: "2026-06-20"
 language: en
 license: "Apache-2.0"
@@ -211,3 +211,11 @@ relationships:
   - from: forge-config-loader
     to: [ forge-config, registry-entry ]
     type: uses
+
+# Serving Endpoint Binding (KCP SPEC v0.26 §3.12): authoritative manifest URL
+# and authorized MCP representative. Ignored by pre-0.26 verifiers.
+serving:
+  manifest:
+    - https://raw.githubusercontent.com/Cantara/Synthesis-Little-Brother/main/knowledge.yaml
+  mcp:
+    - https://mcp.cantara.no/mcp
