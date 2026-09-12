@@ -21,7 +21,7 @@
         <!-- dependency versions -->
         <picocli.version>4.7.7</picocli.version>
         <snakeyaml.version>2.2</snakeyaml.version>
-        <jgit.version>7.1.0.202411261347-r</jgit.version>
+        <jgit.version>7.8.0.202609011348-r</jgit.version>
         <junit.version>5.10.2</junit.version>
     </properties>
 
